@@ -66,7 +66,7 @@ void ShowSampleGameNumbering()
 
 void ShowPlayerName(int playerNo, bool yourTurn, char playerName[])
 {
-	goto_xy(5, 22 + playerNo); cout << "Player " << playerNo << ":" << playerName;
+	goto_xy(5, 20 + playerNo); cout << "Player " << playerNo << ":" << playerName;
 
 	if (yourTurn)
 		cout << ". Your turn to draw";
@@ -113,7 +113,7 @@ void ShowGameMainPage()
 }
 void DrawOutlineStars()
 {
-	for (int i = 0; i < 27; i++) 
+	for (int i = 0; i < 25; i++) 
 	{
 		goto_xy(1, i); cout << "*";  // stars on the left
 		goto_xy(79, i); cout << "*"; // stars on the right
@@ -121,7 +121,7 @@ void DrawOutlineStars()
 	for (int i = 1; i < 80; i++) 
 	{
 		goto_xy(i, 0); cout << "*"; // stars on the top
-		goto_xy(i, 27); cout << "*"; // stars on the bottom
+		goto_xy(i, 25); cout << "*"; // stars on the bottom
 	}
 }
 
@@ -169,9 +169,9 @@ int main()
 	ShowPlayerName(1, true, player1Name);
 	ShowPlayerName(2, false, player2Name);
 
-	goto_xy(5, 20); cout << "Enter the appropriate alphabet to draw line.";
-	goto_xy(60, 23); cout << "N :---NEW GAME ";
-	goto_xy(60, 24); cout << "X :---EXIT GAME";
+	goto_xy(5, 18); cout << "Enter the appropriate alphabet to draw line.";
+	goto_xy(60, 21); cout << "N :---NEW GAME ";
+	goto_xy(60, 22); cout << "X :---EXIT GAME";
 	
 	DrawGameDots();
 	DrawOutlineStars();
@@ -189,8 +189,10 @@ int main()
 			ShowPlayerName(2, true, player2Name);
 		}
 
-		goto_xy(inputCursorXPosition, 20);
+		goto_xy(inputCursorXPosition, 18);
 		cin >> whichline;
+
+		inputCursorXPosition++;
 
 		whichline = tolower(whichline);
 
@@ -234,7 +236,7 @@ int main()
 				DrawGameHorizontalLine(16, 8); break;	
 			case 'n': goto startGame;
 			case 'x': goto end;
-			default : inputCount--; break; // wrong user input so don't increase the input count
+			default : inputCount--; continue; // wrong user input so don't increase the input count
 		}
 
 		if ((setc1[1] == set1[1]) && (setc1[2] == set1[2]) && (setc1[3] == set1[3]) && (setc1[0] == set1[0] && setc2[1] == set2[1]) && (setc2[2] == set2[2]) && (setc2[3] == set2[3]) && (setc2[0] == set2[0]))
@@ -328,14 +330,12 @@ int main()
 			setc4[3] = 's';
 		}
 
-		inputCursorXPosition++;
-
 		// Change the turn of the players
 		currentPlayer = currentPlayer % 2;
 		currentPlayer++;
 	}
 
-	goto_xy(5, 25);
+	goto_xy(5, 23);
 	if (player1Points > player2Points)
 	{
 		cout << "Congratulations " << player1Name << ". You win with " << player1Points << " points.";
@@ -349,8 +349,8 @@ int main()
 		cout << "Wow, It's a tie";
 	}
 
-	goto_xy(5, 26); cout << "Enter n to Start another game or x to Quit the game.";
-	goto_xy(60, 26);
+	goto_xy(5, 24); cout << "Enter n to Start another game or x to Quit the game.";
+	goto_xy(60, 24);
 
 	cin >> g1;
 
