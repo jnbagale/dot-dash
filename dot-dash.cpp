@@ -64,9 +64,9 @@ void ShowSampleGameNumbering()
 	goto_xy(64, 10); cout << "k";
 }
 
-void ShowPlayerName(int playerNo, bool yourTurn, char playerName[])
+void ShowPlayerName(int playerNo, bool yourTurn, const char playerName[])
 {
-	goto_xy(5, 20 + playerNo); cout << "Player " << playerNo << ":" << playerName;
+	goto_xy(5, 21 + playerNo); cout << "Player " << playerNo << ":" << playerName;
 
 	if (yourTurn)
 		cout << ". Your turn to draw";
@@ -131,43 +131,37 @@ int main()
 	startGame:
 	system("cls");
 
-	char g1;
+	char nextGame;
 	char whichline;
 	char player1Name[20];
-	char player2Name[20];
-
-	char set1[4] = { 'a','h','j','i' };
-	char set2[4] = { 'b','c','j','l' };
-	char set3[4] = { 'g','f','k','i' };
-	char set4[4] = { 'd','e','k','l' };
-	char setc1[4] = { 'p','p','p','p' };
-	char setc2[4] = { 'q','q','q','q' };
-	char setc3[4] = { 'r','r','r','r' };
-	char setc4[4] = { 's','s','s','s' };
+	char player2Name[20];	
 
 	int inputCount;
-	int player1Points = 0;
-	int player2Points = 0;
+	int currentPlayer = 0;
 	int inputCursorXPosition = 60;
-	int currentPlayer = 1;
+	int box1 = 0, box2 = 0, box3 = 0, box4 = 0;
 
 	ShowGameMainPage();
 
 	// input player names	
 	goto_xy(1, 1);
 	cout << "Player 1:";
-	cin >> player1Name;
-	cout << " Player 2:";
-	cin >> player2Name;
+	cin.getline(player1Name, sizeof(player1Name));
+	goto_xy(1, 2);
+	cout << "Player 2:";
+	cin.getline(player2Name, sizeof(player2Name));
 	cout << "Enjoy the game " << player1Name << " & " << player2Name << endl;
 
 	system("cls");
 
+	const char* playerNames[2] = {player1Name, player2Name};
+	int playerPoints[2] = {0, 0};
+
 	ShowSampleGameLines();
 	ShowSampleGameNumbering();
 
-	ShowPlayerName(1, true, player1Name);
-	ShowPlayerName(2, false, player2Name);
+	ShowPlayerName(0, true, playerNames[0]);
+	ShowPlayerName(1, false, playerNames[1]);
 
 	goto_xy(5, 18); cout << "Enter the appropriate alphabet to draw line.";
 	goto_xy(60, 21); cout << "N :---NEW GAME ";
@@ -176,18 +170,12 @@ int main()
 	DrawGameDots();
 	DrawOutlineStars();
 
-	for (inputCount = 1; inputCount <= 12; inputCount++)
+	for (inputCount = 1; inputCount < 13; inputCount++)
 	{
-		if (currentPlayer == 1)
-		{
-			ShowPlayerName(1, true, player1Name);
-			ShowPlayerName(2, false, player2Name);
-		}
-		else
-		{
-			ShowPlayerName(1, false, player1Name);
-			ShowPlayerName(2, true, player2Name);
-		}
+		int otherPlayer = (currentPlayer == 0) ? 1 : 0;
+
+		ShowPlayerName(currentPlayer, true, playerNames[currentPlayer]);
+		ShowPlayerName(otherPlayer, false, playerNames[otherPlayer]);	
 
 		goto_xy(inputCursorXPosition, 18);
 		cin >> whichline;
@@ -199,152 +187,97 @@ int main()
 		switch (whichline)
 		{
 			case 'a': 
-				setc1[0] = 'a';
+				box1++;
 				DrawGameHorizontalLine(6, 1); break;
 			case 'b':
-				setc2[0] = 'b';
+				box2++;
 				DrawGameHorizontalLine(16, 1); break;
 			case 'c':
-				setc2[1] = 'c';
+				box2++;
 				DrawGameVerticalLine(25, 1); break;
 			case 'd':
-				setc4[0] = 'd';
+				box4++;
 				DrawGameVerticalLine(25, 8); break;
 			case 'e':
-				setc4[1] = 'e';
+				box4++;
 				DrawGameHorizontalLine(16, 15); break;
 			case 'f':
-				setc3[1] = 'f';
+				box3++;
 				DrawGameHorizontalLine(6, 15); break;
 			case 'g':
-				setc3[0] = 'g';
+				box3++;
 				DrawGameVerticalLine(5, 8); break;
 			case 'h':
-				setc1[1] = 'h';
+				box1++;
 				DrawGameVerticalLine(5, 1); break;
 			case 'i':
-				setc1[3] = setc3[3] = 'i';		
+				box1++; box3++;	
 				DrawGameHorizontalLine(6, 8); break;
 			case 'j':
-				setc1[2] = setc2[2] = 'j';
+				box1++; box2++;
 				DrawGameVerticalLine(15, 1); break;
 			case 'k':
-				setc3[2] = setc4[2] ='k';
+				box3++; box4++;
 				DrawGameVerticalLine(15, 8); break;
 			case 'l':
-				setc2[3] = setc4[3] = 'l';		
+				box2++; box4++;	
 				DrawGameHorizontalLine(16, 8); break;	
 			case 'n': goto startGame;
 			case 'x': goto end;
 			default : inputCount--; continue; // wrong user input so don't increase the input count
 		}
+	
+		int boxesCreated = 0; 
+		if (box1 == 4) 
+		{
+			box1++;
+			boxesCreated++;
+			goto_xy(7, 4); cout << playerNames[currentPlayer];
+		}
 
-		if ((setc1[1] == set1[1]) && (setc1[2] == set1[2]) && (setc1[3] == set1[3]) && (setc1[0] == set1[0] && setc2[1] == set2[1]) && (setc2[2] == set2[2]) && (setc2[3] == set2[3]) && (setc2[0] == set2[0]))
+		if (box2 == 4) 
 		{
-			if (currentPlayer == 1) { player1Points++; player1Points++; currentPlayer = 2; goto_xy(17, 4); cout << player1Name; goto_xy(7, 4); cout << player1Name; }
-			else { player2Points++; player2Points++; currentPlayer = 1; goto_xy(17, 4); cout << player2Name; goto_xy(7, 4); cout << player2Name; }
-			setc1[0] = 'p';
-			setc1[1] = 'p';
-			setc1[2] = 'p';
-			setc1[3] = 'p';
-			setc2[0] = 'q';
-			setc2[1] = 'q';
-			setc2[2] = 'q';
-			setc2[3] = 'q';
+			box2++;
+			boxesCreated++;
+			goto_xy(17, 4); cout << playerNames[currentPlayer];
 		}
-		else if ((setc2[1] == set2[1]) && (setc2[2] == set2[2]) && (setc2[3] == set2[3]) && (setc2[0] == set2[0] && setc4[1] == set4[1]) && (setc4[2] == set4[2]) && (setc4[3] == set4[3]) && (setc4[0] == set4[0]))
-		{
-			if (currentPlayer == 1) { player1Points++; player1Points++; currentPlayer = 2; goto_xy(17, 12); cout << player1Name; goto_xy(17, 4); cout << player1Name; }
-			else { player2Points++; player2Points++; currentPlayer = 1; goto_xy(17, 12); cout << player2Name;; goto_xy(17, 4); cout << player2Name; }
 
-			setc2[0] = 'q';
-			setc2[1] = 'q';
-			setc2[2] = 'q';
-			setc2[3] = 'q';
-			setc4[0] = 's';
-			setc4[1] = 's';
-			setc4[2] = 's';
-			setc4[3] = 's';
-		}
-		else if ((setc4[1] == set4[1]) && (setc4[2] == set4[2]) && (setc4[3] == set4[3]) && (setc4[0] == set4[0] && setc3[1] == set3[1]) && (setc3[2] == set3[2]) && (setc3[3] == set3[3]) && (setc3[0] == set3[0]))
+		if (box3 == 4) 
 		{
-			if (currentPlayer == 1) { player1Points++; currentPlayer = 2; player1Points++; goto_xy(17, 12); cout << player1Name; goto_xy(7, 12); cout << player1Name; }
-			else { player2Points++; currentPlayer = 1; player2Points++; goto_xy(17, 12); cout << player2Name; goto_xy(7, 12); cout << player2Name; }
-			setc3[0] = 'r';
-			setc3[1] = 'r';
-			setc3[2] = 'r';
-			setc3[3] = 'r';
-			setc4[0] = 's';
-			setc4[1] = 's';
-			setc4[2] = 's';
-			setc4[3] = 's';
+			box3++;
+			boxesCreated++;
+			goto_xy(7, 12); cout << playerNames[currentPlayer];
 		}
-		else if ((setc1[1] == set1[1]) && (setc1[2] == set1[2]) && (setc1[3] == set1[3]) && (setc1[0] == set1[0] && setc3[1] == set3[1]) && (setc3[2] == set3[2]) && (setc3[3] == set3[3]) && (setc3[0] == set3[0]))
-		{
-			if (currentPlayer == 1) { player1Points++; currentPlayer = 2; player1Points++; goto_xy(7, 12); cout << player1Name; goto_xy(7, 4); cout << player1Name; }
-			else { player2Points++; currentPlayer = 1;  player2Points++; goto_xy(7, 12); cout << player2Name; goto_xy(7, 4); cout << player2Name; }
-			setc1[0] = 'p';
-			setc1[1] = 'p';
-			setc1[2] = 'p';
-			setc1[3] = 'p';
-			setc3[0] = 'r';
-			setc3[1] = 'r';
-			setc3[2] = 'r';
-			setc3[3] = 'r';
-		}
-		else if ((setc1[1] == set1[1]) && (setc1[2] == set1[2]) && (setc1[3] == set1[3]) && (setc1[0] == set1[0]))
-		{
-			if (currentPlayer == 1) { player1Points++; currentPlayer = 2; goto_xy(7, 4); cout << player1Name; }
-			else { player2Points++; currentPlayer = 1; goto_xy(7, 4); cout << player2Name; }
 
-			setc1[0] = 'p';
-			setc1[1] = 'p';
-			setc1[2] = 'p';
-			setc1[3] = 'p';
-		}
-		else  if ((setc2[1] == set2[1]) && (setc2[2] == set2[2]) && (setc2[3] == set2[3]) && (setc2[0] == set2[0]))
+		if (box4 == 4) 
 		{
-			if (currentPlayer == 1) { player1Points++; currentPlayer = 2; goto_xy(17, 4); cout << player1Name; }
-			else { player2Points++; currentPlayer = 1; goto_xy(17, 4); cout << player2Name; }
-			setc2[0] = 'q';
-			setc2[1] = 'q';
-			setc2[2] = 'q';
-			setc2[3] = 'q';
-		}
-		else if ((setc3[1] == set3[1]) && (setc3[2] == set3[2]) && (setc3[3] == set3[3]) && (setc3[0] == set3[0]))
-		{
-			if (currentPlayer == 1) { player1Points++; currentPlayer = 2; goto_xy(7, 12); cout << player1Name; }
-			else { player2Points++; currentPlayer = 1; goto_xy(7, 12); cout << player2Name; }
-			setc3[0] = 'r';
-			setc3[1] = 'r';
-			setc3[2] = 'r';
-			setc3[3] = 'r';
-		}
-		else if ((setc4[1] == set4[1]) && (setc4[2] == set4[2]) && (setc4[3] == set4[3]) && (setc4[0] == set4[0]))
-		{
-			if (currentPlayer == 1) { player1Points++; currentPlayer = 2; goto_xy(17, 12); cout << player1Name; }
-			else { player2Points++; currentPlayer = 1; goto_xy(17, 12); cout << player2Name; }
-			setc4[0] = 's';
-			setc4[1] = 's';
-			setc4[2] = 's';
-			setc4[3] = 's';
+			box4++;
+			boxesCreated++;
+			goto_xy(17, 12); cout << playerNames[currentPlayer];
 		}
 
 		// Change the turn of the players
-		currentPlayer = currentPlayer % 2;
-		currentPlayer++;
+		// Players keep the turn if they complete one or more boxes
+		if (boxesCreated == 0)
+		{
+			currentPlayer = otherPlayer;
+		}		
+		else
+		{
+			playerPoints[currentPlayer] += boxesCreated;
+		}
 	}
 
 	goto_xy(5, 23);
-	if (player1Points > player2Points)
+	if (playerPoints[0] > playerPoints[1])
 	{
-		cout << "Congratulations " << player1Name << ". You win with " << player1Points << " points.";
+		cout << "Congratulations " << player1Name << ". You win with " << playerPoints[0] << " points.";
 	}
-	else if (player2Points > player1Points)
+	else if (playerPoints[1] > playerPoints[0])
 	{
-		cout << "Congratulations " << player2Name << "  You win with " << player2Points << " points.";
+		cout << "Congratulations " << player2Name << "  You win with " << playerPoints[1] << " points.";
 	}
-	else if (player1Points == player2Points)
+	else if (playerPoints[0] == playerPoints[1])
 	{
 		cout << "Wow, It's a tie";
 	}
@@ -352,9 +285,9 @@ int main()
 	goto_xy(5, 24); cout << "Enter n to Start another game or x to Quit the game.";
 	goto_xy(60, 24);
 
-	cin >> g1;
+	cin >> nextGame;
 
-	if (g1 == 'n')
+	if (nextGame == 'n')
 		goto startGame;
 	else
 		goto end;
