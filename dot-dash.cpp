@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void goto_xy(int x, int y)
+void goto_xy(int x, int y) // x is column position left to right left is 0, y is row position top to bottom top is 0
 {
 	// Specify the position of the cursor
 	COORD coord;
@@ -136,23 +136,22 @@ int main()
 	char player1Name[20];
 	char player2Name[20];	
 
+	ShowGameMainPage();
+
+	// input player names	
+	goto_xy(1, 1); cout << "Player 1: ";
+	goto_xy(1, 2); cout << "Player 2: ";
+
+	goto_xy(11, 1); cin.getline(player1Name, sizeof(20));
+	goto_xy(11, 2); cin.getline(player2Name, sizeof(20));
+
+	replayGame:
+	system("cls");
+
 	int inputCount;
 	int currentPlayer = 0;
 	int inputCursorXPosition = 60;
 	int box1 = 0, box2 = 0, box3 = 0, box4 = 0;
-
-	ShowGameMainPage();
-
-	// input player names	
-	goto_xy(1, 1);
-	cout << "Player 1:";
-	cin.getline(player1Name, sizeof(player1Name));
-	goto_xy(1, 2);
-	cout << "Player 2:";
-	cin.getline(player2Name, sizeof(player2Name));
-	cout << "Enjoy the game " << player1Name << " & " << player2Name << endl;
-
-	system("cls");
 
 	const char* playerNames[2] = {player1Name, player2Name};
 	int playerPoints[2] = {0, 0};
@@ -164,8 +163,9 @@ int main()
 	ShowPlayerName(1, false, playerNames[1]);
 
 	goto_xy(5, 18); cout << "Enter the appropriate alphabet to draw line.";
-	goto_xy(60, 21); cout << "N :---NEW GAME ";
-	goto_xy(60, 22); cout << "X :---EXIT GAME";
+	goto_xy(60, 20); cout << "R :--- REPLAY GAME ";
+	goto_xy(60, 21); cout << "N :--- NEW GAME ";
+	goto_xy(60, 22); cout << "X :--- EXIT GAME";
 	
 	DrawGameDots();
 	DrawOutlineStars();
@@ -178,7 +178,8 @@ int main()
 		ShowPlayerName(otherPlayer, false, playerNames[otherPlayer]);	
 
 		goto_xy(inputCursorXPosition, 18);
-		cin >> whichline;
+		whichline = getchar();
+		getchar(); // remove \n from the previous input
 
 		inputCursorXPosition++;
 
@@ -221,7 +222,8 @@ int main()
 				DrawGameVerticalLine(15, 8); break;
 			case 'l':
 				box2++; box4++;	
-				DrawGameHorizontalLine(16, 8); break;	
+				DrawGameHorizontalLine(16, 8); break;
+			case 'r': goto replayGame;	
 			case 'n': goto startGame;
 			case 'x': goto end;
 			default : inputCount--; continue; // wrong user input so don't increase the input count
@@ -275,20 +277,26 @@ int main()
 	}
 	else if (playerPoints[1] > playerPoints[0])
 	{
-		cout << "Congratulations " << player2Name << "  You win with " << playerPoints[1] << " points.";
+		cout << "Congratulations " << player2Name << ". You win with " << playerPoints[1] << " points.";
 	}
 	else if (playerPoints[0] == playerPoints[1])
 	{
 		cout << "Wow, It's a tie";
 	}
 
-	goto_xy(5, 24); cout << "Enter n to Start another game or x to Quit the game.";
-	goto_xy(60, 24);
+	goto_xy(5, 24); cout << "Enter r to Replay, n to start New game or x to Quit.";
+	goto_xy(60, 24); nextGame = getchar();
 
-	cin >> nextGame;
-
-	if (nextGame == 'n')
+	if (nextGame == 'r')
+	{
+		getchar(); // remove \n from the previous input
+		goto replayGame;
+	}
+	else if (nextGame == 'n')
+	{
+		getchar(); // remove \n from the previous input
 		goto startGame;
+	}
 	else
 		goto end;
 
