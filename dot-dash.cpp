@@ -142,8 +142,8 @@ int main()
 	goto_xy(1, 1); cout << "Player 1: ";
 	goto_xy(1, 2); cout << "Player 2: ";
 
-	goto_xy(11, 1); cin.getline(player1Name, sizeof(20));
-	goto_xy(11, 2); cin.getline(player2Name, sizeof(20));
+	goto_xy(11, 1); cin.getline(player1Name, 20);
+	goto_xy(11, 2); cin.getline(player2Name, 20);
 
 	replayGame:
 	system("cls");
@@ -155,6 +155,7 @@ int main()
 
 	const char* playerNames[2] = {player1Name, player2Name};
 	int playerPoints[2] = {0, 0};
+	string pastInputs = "";
 
 	ShowSampleGameLines();
 	ShowSampleGameNumbering();
@@ -179,11 +180,17 @@ int main()
 
 		goto_xy(inputCursorXPosition, 18);
 		whichline = getchar();
-		getchar(); // remove \n from the previous input
+		while ((getchar()) != '\n'); // remove \n from the previous input
 
 		inputCursorXPosition++;
 
 		whichline = tolower(whichline);
+
+		std::size_t found = pastInputs.find(whichline);
+  		if (found < pastInputs.length())
+		{
+			inputCount--; continue; // repeated user input so don't increase the input count
+		}
 
 		switch (whichline)
 		{
@@ -228,6 +235,8 @@ int main()
 			case 'x': goto end;
 			default : inputCount--; continue; // wrong user input so don't increase the input count
 		}
+
+		pastInputs += whichline;
 	
 		int boxesCreated = 0; 
 		if (box1 == 4) 
@@ -287,14 +296,14 @@ int main()
 	goto_xy(5, 24); cout << "Enter r to Replay, n to start New game or x to Quit.";
 	goto_xy(60, 24); nextGame = getchar();
 
+	while ((getchar()) != '\n'); // remove \n from the previous input
+
 	if (nextGame == 'r')
 	{
-		getchar(); // remove \n from the previous input
 		goto replayGame;
 	}
 	else if (nextGame == 'n')
 	{
-		getchar(); // remove \n from the previous input
 		goto startGame;
 	}
 	else
